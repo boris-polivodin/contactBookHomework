@@ -4,36 +4,46 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 public class App {
     public static void main(String[] args) throws Exception {
 
         String file = "input.txt";
-        Phonebook phonebook = new App().new Phonebook();
+        Phonebook phonebook = new Phonebook();
         try {
             String text = phonebook.readFile(file);
 
-            HashMap<String, ArrayList<String>> map = phonebook.getContactMap(text);
+            System.out.println();
+            System.out.println("Data");
+            HashMap<String, ArrayList<String>> data = phonebook.getAllContactList(text);
+            data.entrySet().forEach(System.out::println);
+
+            System.out.println();
+            HashMap<String, HashSet<String>> map = phonebook.getContactMap(text);
             System.out.println("Unsorted list");
             map.entrySet().forEach(System.out::println);
+
             System.out.println();
-            LinkedHashMap<String, ArrayList<String>> sortedMap = phonebook.getSortedMap(map);
+            LinkedHashMap<String, HashSet<String>> sortedMap = phonebook.getSortedMap(map);
             System.out.println("Sorted list");
             sortedMap.entrySet().forEach(System.out::println);
+
         } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
         }
-        
-        
+         
     }
 
-    class Phonebook {
+}
+
+class Phonebook {
 
 
-        LinkedHashMap<String, ArrayList<String>> getSortedMap(HashMap<String, ArrayList<String>> map) {
+        LinkedHashMap<String, HashSet<String>> getSortedMap(HashMap<String, HashSet<String>> map) {
 
-            LinkedHashMap<String, ArrayList<String>> linkedMap = new LinkedHashMap<String, ArrayList<String>>();
+            LinkedHashMap<String, HashSet<String>> linkedMap = new LinkedHashMap<String, HashSet<String>>();
 
             HashMap<String, Integer> temp = new HashMap<>();
             map.entrySet().forEach(n -> temp.put(n.getKey(), n.getValue().size()));
@@ -45,7 +55,29 @@ public class App {
             return linkedMap;
         }
 
-        HashMap<String, ArrayList<String>> getContactMap(String text) {
+        HashMap<String, HashSet<String>> getContactMap(String text) {
+
+            HashMap<String, HashSet<String>> phoneNumber = new HashMap<String, HashSet<String>>();
+
+            String[] contacts = text.split("\n");
+            for (String contact : contacts) {
+                String[] notes = contact.strip().split("; ");
+                String key = notes[0];
+                String value = notes[1];
+                if (phoneNumber.containsKey(key)) {
+                    phoneNumber.get(key).add(value);
+                } else {
+                    HashSet<String> set = new HashSet<String>(1);
+                    set.add(value);
+                    phoneNumber.put(key, set);
+                }
+            }
+           
+            
+            return phoneNumber;
+        }
+
+        HashMap<String, ArrayList<String>> getAllContactList(String text) {
 
             HashMap<String, ArrayList<String>> phoneNumber = new HashMap<String, ArrayList<String>>();
 
@@ -57,9 +89,9 @@ public class App {
                 if (phoneNumber.containsKey(key)) {
                     phoneNumber.get(key).add(value);
                 } else {
-                    ArrayList<String> arrayList = new ArrayList<String>(1);
-                    arrayList.add(value);
-                    phoneNumber.put(key, arrayList);
+                    ArrayList<String> set = new ArrayList<String>(1);
+                    set.add(value);
+                    phoneNumber.put(key, set);
                 }
             }
            
@@ -84,4 +116,4 @@ public class App {
         }
 
     }
-}
+
